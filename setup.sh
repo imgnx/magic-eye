@@ -1,0 +1,1 @@
+/Users/donaldmoore/src/dinglehopper/bin/create-magic-eye-wkbn

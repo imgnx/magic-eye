@@ -1,0 +1,121 @@
+const depthFile = document.getElementById("depthFile");
+const patternWidthEl = document.getElementById("patternWidth");
+const maxShiftEl = document.getElementById("maxShift");
+const invertEl = document.getElementById("invert");
+const renderBtn = document.getElementById("renderBtn");
+const downloadBtn = document.getElementById("downloadBtn");
+const out = document.getElementById("out");
+const outCtx = out.getContext("2d", { willReadFrequently: true });
+
+let depthImg = null;
+
+depthFile.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  depthImg = await loadImage(URL.createObjectURL(file));
+  renderBtn.disabled = false;
+});
+
+renderBtn.addEventListener("click", () => {
+  if (!depthImg) return;
+  const patternWidth = clampInt(patternWidthEl.value, 40, 300, 120);
+  const maxShift = clampInt(maxShiftEl.value, 4, 80, 28);
+  const invert = !!invertEl.checked;
+  renderAutostereogram(depthImg, out, patternWidth, maxShift, invert);
+  downloadBtn.disabled = false;
+});
+
+downloadBtn.addEventListener("click", () => {
+  const a = document.createElement("a");
+  a.href = out.toDataURL("image/png");
+  a.download = "magic-eye.png";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+
+function clampInt(v, min, max, fallback) {
+  const n = Number.parseInt(String(v), 10);
+  if (!Number.isFinite(n)) return fallback;
+  return Math.max(min, Math.min(max, n));
+}
+
+function loadImage(url) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+function renderAutostereogram(depthImage, canvas, patternWidth, maxShift, invert) {
+  const w = depthImage.naturalWidth || depthImage.width;
+  const h = depthImage.naturalHeight || depthImage.height;
+
+  const depthCanvas = document.createElement("canvas");
+  depthCanvas.width = w;
+  depthCanvas.height = h;
+  const dctx = depthCanvas.getContext("2d", { willReadFrequently: true });
+  dctx.drawImage(depthImage, 0, 0, w, h);
+  const depthData = dctx.getImageData(0, 0, w, h).data;
+
+  canvas.width = w;
+  canvas.height = h;
+
+  const outImage = outCtx.createImageData(w, h);
+  const outData = outImage.data;
+
+  const tile = new Uint8ClampedArray(patternWidth * 3);
+  cryptoFill(tile);
+
+  for (let y = 0; y < h; y++) {
+    const row = new Uint8ClampedArray(w * 3);
+
+    for (let x = 0; x < w; x++) {
+      const tx = (x % patternWidth) * 3;
+      const rx = x * 3;
+      row[rx] = tile[tx];
+      row[rx + 1] = tile[tx + 1];
+      row[rx + 2] = tile[tx + 2];
+    }
+
+    for (let x = 0; x < w; x++) {
+      const di = (y * w + x) * 4;
+      const r = depthData[di];
+      const g = depthData[di + 1];
+      const b = depthData[di + 2];
+      let z = (r + g + b) / (3 * 255);
+      if (invert) z = 1 - z;
+
+      const shift = (z * maxShift) | 0;
+      const srcX = x - patternWidth + shift;
+      if (srcX >= 0) {
+        const dst = x * 3;
+        const src = srcX * 3;
+        row[dst] = row[src];
+        row[dst + 1] = row[src + 1];
+        row[dst + 2] = row[src + 2];
+      }
+    }
+
+    for (let x = 0; x < w; x++) {
+      const o = (y * w + x) * 4;
+      const r3 = x * 3;
+      outData[o] = row[r3];
+      outData[o + 1] = row[r3 + 1];
+      outData[o + 2] = row[r3 + 2];
+      outData[o + 3] = 255;
+    }
+  }
+
+  outCtx.putImageData(outImage, 0, 0);
+}
+
+function cryptoFill(buf) {
+  if (globalThis.crypto?.getRandomValues) {
+    globalThis.crypto.getRandomValues(buf);
+    return;
+  }
+  for (let i = 0; i < buf.length; i++) buf[i] = (Math.random() * 256) | 0;
+}
