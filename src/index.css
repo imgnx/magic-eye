@@ -1,0 +1,125 @@
+@font-face {
+  font-family: '3270';
+  src: url('3270.woff') format('woff');
+}
+
+html {
+  background: black !important;
+}
+
+body {
+  background: black !important;
+  font-family: '3270', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica,
+    Arial, sans-serif;
+  margin: 24px;
+  background: #202020;
+  color: #eee;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+label {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type='number'] {
+  width: 92px;
+}
+
+canvas {
+  border: 1px solid #ddd;
+  max-width: 100%;
+  height: auto;
+}
+
+.hint {
+  opacity: 0.8;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+html {
+  background: #111 !important;
+  color: white;
+}
+
+* {
+  text-rendering: optimizeLegibility;
+  font-variant-ligatures: normal;
+}
+
+body {
+  background: #222 !important;
+  color: white;
+  font-family: '3270', system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+    Arial;
+  margin: 24px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+label {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+input[type='number'] {
+  width: 92px;
+}
+
+canvas {
+  background: conic-gradient(
+    #eee 90deg,
+    #fff 90deg 180deg,
+    #eee 180deg 270deg,
+    #fff 270deg
+  );
+  background-size: 40px 40px; /* Adjust this to change square size */
+  border: 1px solid #ddd;
+  max-width: 100%;
+  min-width: max-content;
+  max-height: 100vh;
+  width: 100%;
+  height: auto;
+  background: #333;
+  border-radius: 1rem;
+}
+
+.stack {
+  display: grid;
+  gap: 10px;
+}
+
+.hint {
+  opacity: 0.8;
+}
+
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+label {
+  cursor: pointer;
+}

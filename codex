@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+exec /opt/homebrew/bin/codex resume 019b7e41-ee6c-7ac2-a22e-4b87933d7f71 "$@"
