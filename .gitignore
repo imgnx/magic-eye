@@ -4,3 +4,6 @@ assets
 .breadcrumb
 .themefile
 .*
+codex
+.agent-strength
+AGENTS.md
